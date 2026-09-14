@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Senior Product Design — Job Pipeline</title>
+<style>
+  :root{
+    --bg:#f7f7f5;
+    --card:#ffffff;
+    --text:#37352f;
+    --text-soft:#787774;
+    --line:#e9e9e7;
+    --line-strong:#dcdcda;
+    --accent:#2383e2;
+    --tag-blue-bg:#e7f3fe; --tag-blue-fg:#0b6bcb;
+    --tag-green-bg:#e9f3ec; --tag-green-fg:#256b3a;
+    --tag-yellow-bg:#fbf3db; --tag-yellow-fg:#93720b;
+    --tag-red-bg:#fce6e6; --tag-red-fg:#b0261e;
+    --tag-purple-bg:#f0e9f8; --tag-purple-fg:#6940a5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    padding:0 0 60px;
+  }
+  .topbar{
+    padding:28px 32px 18px;
+    border-bottom:1px solid var(--line);
+    background:var(--card);
+  }
+  .eyebrow{
+    font-size:12.5px;
+    color:var(--text-soft);
+    margin:0 0 6px;
+  }
+  h1{
+    font-size:26px;
+    margin:0 0 10px;
+    font-weight:600;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:18px;
+    font-size:13px;
+    color:var(--text-soft);
+  }
+  .meta-row b{color:var(--text);}
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 32px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .add-btn{
+    background:var(--text);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:8px 14px;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .add-btn:hover{opacity:.88;}
+  .count{font-size:13px;color:var(--text-soft);}
+
+  .board{
+    display:flex;
+    gap:16px;
+    padding:8px 32px 32px;
+    overflow-x:auto;
+    align-items:flex-start;
+  }
+  .column{
+    background:var(--bg);
+    border-radius:8px;
+    width:300px;
+    min-width:300px;
+    flex:0 0 auto;
+  }
+  .col-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:6px 10px;
+    margin-bottom:6px;
+  }
+  .col-title{
+    font-size:13px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;}
+  .col-count{
+    font-size:12px;
+    color:var(--text-soft);
+    background:var(--line);
+    border-radius:10px;
+    padding:1px 8px;
+  }
+  .drop-zone{
+    min-height:60px;
+    border-radius:8px;
+    padding:2px;
+    transition:background .15s;
+  }
+  .drop-zone.drag-over{
+    background:#eef4fb;
+    outline:1.5px dashed var(--accent);
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:12px 12px 10px;
+    margin-bottom:8px;
+    cursor:grab;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .card:active{cursor:grabbing;}
+  .card.dragging{opacity:.4;}
+  .card-company{
+    font-size:14px;
+    font-weight:600;
+    margin:0 0 2px;
+  }
+  .card-role{
+    font-size:12.5px;
+    color:var(--text-soft);
+    margin:0 0 8px;
+  }
+  .tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+  .tag{
+    font-size:11px;
+    padding:2px 7px;
+    border-radius:4px;
+    white-space:nowrap;
+  }
+  .tag-blue{background:var(--tag-blue-bg);color:var(--tag-blue-fg);}
+  .tag-green{background:var(--tag-green-bg);color:var(--tag-green-fg);}
+  .tag-yellow{background:var(--tag-yellow-bg);color:var(--tag-yellow-fg);}
+  .tag-red{background:var(--tag-red-bg);color:var(--tag-red-fg);}
+  .tag-purple{background:var(--tag-purple-bg);color:var(--tag-purple-fg);}
+
+  .card-note{
+    font-size:12px;
+    color:var(--text);
+    line-height:1.45;
+    margin:0 0 6px;
+    padding-top:6px;
+    border-top:1px solid var(--line);
+  }
+  .card-lenny{
+    font-size:11.5px;
+    color:var(--text-soft);
+    font-style:italic;
+    margin:0 0 8px;
+  }
+  .card-foot{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:4px;
+  }
+  .verify{
+    font-size:10.5px;
+    color:var(--text-soft);
+  }
+  .verify.live::before{content:"● "; color:#2c9b52;}
+  .apply-link{
+    font-size:12px;
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:500;
+  }
+  .apply-link:hover{text-decoration:underline;}
+  .remove-btn{
+    background:none;border:none;color:var(--text-soft);
+    font-size:12px;cursor:pointer;padding:0;
+  }
+  .remove-btn:hover{color:var(--tag-red-fg);}
+
+  .empty-hint{
+    font-size:12px;
+    color:var(--text-soft);
+    padding:10px;
+    text-align:center;
+    border:1.5px dashed var(--line-strong);
+    border-radius:6px;
+  }
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.35);
+    display:none;align-items:center;justify-content:center;z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:#fff;border-radius:10px;padding:22px;width:380px;max-width:90vw;
+  }
+  .modal h2{font-size:16px;margin:0 0 14px;}
+  .field{margin-bottom:10px;}
+  .field label{display:block;font-size:12px;color:var(--text-soft);margin-bottom:4px;}
+  .field input, .field select, .field textarea{
+    width:100%;padding:7px 9px;border:1px solid var(--line-strong);border-radius:6px;
+    font-size:13px;font-family:inherit;
+  }
+  .field textarea{resize:vertical;min-height:50px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+  .btn-secondary{background:none;border:1px solid var(--line-strong);border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;}
+  .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;}
+
+  .status-msg{
+    position:fixed;bottom:16px;right:20px;
+    font-size:12px;color:var(--text-soft);
+    background:#fff;border:1px solid var(--line);
+    padding:5px 10px;border-radius:6px;
+    opacity:0;transition:opacity .3s;
+  }
+  .status-msg.show{opacity:1;}
+
+  @media(max-width:700px){
+    .board{padding:8px 12px 24px;}
+    .topbar,.toolbar{padding-left:16px;padding-right:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <p class="eyebrow">senior product design — job pipeline</p>
+  <h1>Application Tracker</h1>
+  <div class="meta-row">
+    <span><b>How this stays current:</b> I refresh this by request and verify each posting against the company's own careers page. For true daily automation, set up a Claude Cowork scheduled task pointed at this list.</span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <span class="count" id="totalCount">0 roles tracked</span>
+  <button class="add-btn" id="openAdd">+ Add role</button>
+</div>
+
+<div class="board" id="board"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Add a role</h2>
+    <div class="field"><label>Company</label><input id="f-company" placeholder="e.g. Notion"></div>
+    <div class="field"><label>Role title</label><input id="f-role" placeholder="e.g. Senior Product Designer, Platform"></div>
+    <div class="field"><label>Location</label><input id="f-location" placeholder="e.g. New York, NY"></div>
+    <div class="field"><label>Comp (optional)</label><input id="f-comp" placeholder="e.g. $170k–$210k"></div>
+    <div class="field"><label>Link</label><input id="f-link" placeholder="https://..."></div>
+    <div class="field"><label>Fit note (optional)</label><textarea id="f-note" placeholder="Why this one's worth applying to"></textarea></div>
+    <div class="field"><label>Stage</label>
+      <select id="f-stage">
+        <option value="interested">Interested</option>
+        <option value="researching">Researching</option>
+        <option value="applied">Applied</option>
+        <option value="interviewing">Interviewing</option>
+        <option value="offer">Offer</option>
+        <option value="passed">Passed</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="cancelAdd">Cancel</button>
+      <button class="btn-primary" id="saveAdd">Add to board</button>
+    </div>
+  </div>
+</div>
+
+<div class="status-msg" id="statusMsg"></div>
+
+<script>
+const STAGES = [
+  {id:"interested", label:"Interested", color:"#9b9b98"},
+  {id:"researching", label:"Researching", color:"#0b6bcb"},
+  {id:"applied", label:"Applied", color:"#93720b"},
+  {id:"interviewing", label:"Interviewing", color:"#6940a5"},
+  {id:"offer", label:"Offer", color:"#256b3a"},
+  {id:"passed", label:"Passed", color:"#b0261e"}
+];
+
+// Seed data — verified against each company's own careers page on Sept 14, 2026.
+const SEED_JOBS = [
+  {
+    id:"rh-redesign",
+    company:"Robinhood",
+    role:"Senior Product Designer, Redesign",
+    location:"Menlo Park, CA / New York, NY",
+    comp:"$166k–$195k (Zone 1)",
+    link:"https://job-boards.greenhouse.io/robinhood/jobs/6494244",
+    note:"Consumer mobile craft + A/B experimentation focus — your case studies lean systems/research over rapid visual iteration, so this is the weakest fit of the three Robinhood roles.",
+    lenny:null,
+    verified:"Confirmed live on Robinhood's Greenhouse board",
+    stage:"researching"
+  },
+  {
+    id:"rh-trading",
+    company:"Robinhood",
+    role:"Senior Product Designer, Trading",
+    location:"Menlo Park, CA / New York, NY",
+    comp:"$166k–$195k (Zone 1)",
+    link:"https://job-boards.greenhouse.io/robinhood/jobs/8160668",
+    note:"Complex systems + legacy-to-new migration, cross-functional with legal — maps well to your Comparative→Custom Reports and Email Report work.",
+    lenny:null,
+    verified:"Confirmed live on Robinhood's Greenhouse board",
+    stage:"researching"
+  },
+  {
+    id:"rh-defi",
+    company:"Robinhood",
+    role:"Senior Product Designer, DeFi",
+    location:"Menlo Park, CA / New York, NY",
+    comp:"$166k–$195k (Zone 1)",
+    link:"https://job-boards.greenhouse.io/robinhood/jobs/8147756",
+    note:"Explicitly wants AI-first workflow fluency — you can prove this with your Claude/Cursor prototyping. Crypto fluency is the gap to address directly.",
+    lenny:null,
+    verified:"Confirmed live on Robinhood's Greenhouse board",
+    stage:"researching"
+  },
+  {
+    id:"ramp-growth",
+    company:"Ramp",
+    role:"Senior Product Designer, Core Growth",
+    location:"New York, NY (HQ, hybrid)",
+    comp:"$172k–$440k range posted",
+    link:"https://ramp.com/careers",
+    note:"Fintech SaaS, AI-native design process (LLM → Claude/Cursor → Figma) — close match to how you already work. Design team shows 6 open roles on Ramp's own careers page.",
+    lenny:"Lenny's Podcast interviewed Ramp's VP of Product, Geoff Charles, on how the company's 'velocity' culture shapes hiring and process — useful context for what pace to expect.",
+    verified:"Design openings confirmed live on ramp.com/careers",
+    stage:"interested"
+  },
+  {
+    id:"capone-pdm",
+    company:"Capital One",
+    role:"Product Design Manager, Experience Design",
+    location:"New York, NY",
+    comp:"$179,700–$205,100",
+    link:"https://www.capitalonecareers.com/job/new-york/product-design-manager-experience-design-team/1732/96965509184",
+    note:"Enterprise-scale fintech, strong overlap with your data viz and systems-design background. A management-track role, not pure IC — worth confirming which track you want.",
+    lenny:null,
+    verified:"Confirmed live on capitalonecareers.com",
+    stage:"interested"
+  },
+  {
+    id:"circle-lead",
+    company:"Circle (USDC)",
+    role:"Lead Product Designer",
+    location:"New York, NY",
+    comp:"$157k–$207k range posted",
+    link:"https://careers.circle.com/us/en/job/CIICIRUSJR100414EGEXTERNALENUS/Lead-Product-Designer",
+    note:"Stablecoin/crypto infra — wants systems-level thinking and daily AI-assisted prototyping (Cursor, Claude Code). Same crypto-fluency gap as Robinhood DeFi, same AI-fluency strength.",
+    lenny:null,
+    verified:"Confirmed live on careers.circle.com",
+    stage:"interested"
+  }
+];
+
+const STORAGE_KEY = "job-pipeline-state-v1";
+const CUSTOM_KEY = "job-pipeline-custom-v1";
+
+let stageOverrides = {};   // seed job id -> stage
+let removedSeeds = {};     // seed job id -> true if removed
+let customJobs = [];       // user-added jobs
+
+function allJobs(){
+  const seeded = SEED_JOBS
+    .filter(j => !removedSeeds[j.id])
+    .map(j => ({...j, stage: stageOverrides[j.id] || j.stage}));
+  return [...seeded, ...customJobs];
+}
+
+function stageColor(id){
+  const s = STAGES.find(s => s.id === id);
+  return s ? s.color : "#999";
+}
+function stageLabel(id){
+  const s = STAGES.find(s => s.id === id);
+  return s ? s.label : id;
+}
+
+function tagClassForLocation(loc){
+  if(!loc) return "tag-blue";
+  if(/remote/i.test(loc)) return "tag-green";
+  if(/new york/i.test(loc)) return "tag-purple";
+  return "tag-blue";
+}
+
+function render(){
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  const jobs = allJobs();
+  document.getElementById("totalCount").textContent = `${jobs.length} role${jobs.length===1?"":"s"} tracked`;
+
+  STAGES.forEach(stage => {
+    const col = document.createElement("div");
+    col.className = "column";
+
+    const head = document.createElement("div");
+    head.className = "col-head";
+    const stageJobs = jobs.filter(j => j.stage === stage.id);
+    head.innerHTML = `
+      <div class="col-title"><span class="dot" style="background:${stage.color}"></span>${stage.label}</div>
+      <span class="col-count">${stageJobs.length}</span>
+    `;
+    col.appendChild(head);
+
+    const dropZone = document.createElement("div");
+    dropZone.className = "drop-zone";
+    dropZone.dataset.stage = stage.id;
+
+    if(stageJobs.length === 0){
+      const hint = document.createElement("div");
+      hint.className = "empty-hint";
+      hint.textContent = "drop a card here";
+      dropZone.appendChild(hint);
+    }
+
+    stageJobs.forEach(job => dropZone.appendChild(buildCard(job)));
+
+    dropZone.addEventListener("dragover", e => {
+      e.preventDefault();
+      dropZone.classList.add("drag-over");
+    });
+    dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+    dropZone.addEventListener("drop", e => {
+      e.preventDefault();
+      dropZone.classList.remove("drag-over");
+      const id = e.dataTransfer.getData("text/plain");
+      moveJob(id, stage.id);
+    });
+
+    col.appendChild(dropZone);
+    board.appendChild(col);
+  });
+}
+
+function buildCard(job){
+  const card = document.createElement("div");
+  card.className = "card";
+  card.draggable = true;
+  card.dataset.id = job.id;
+
+  card.addEventListener("dragstart", e => {
+    e.dataTransfer.setData("text/plain", job.id);
+    setTimeout(() => card.classList.add("dragging"), 0);
+  });
+  card.addEventListener("dragend", () => card.classList.remove("dragging"));
+
+  const locTagClass = tagClassForLocation(job.location);
+
+  card.innerHTML = `
+    <p class="card-company">${escapeHtml(job.company)}</p>
+    <p class="card-role">${escapeHtml(job.role)}</p>
+    <div class="tag-row">
+      <span class="tag ${locTagClass}">${escapeHtml(job.location || "")}</span>
+      ${job.comp ? `<span class="tag tag-yellow">${escapeHtml(job.comp)}</span>` : ""}
+    </div>
+    ${job.note ? `<p class="card-note">${escapeHtml(job.note)}</p>` : ""}
+    ${job.lenny ? `<p class="card-lenny">🎙️ ${escapeHtml(job.lenny)}</p>` : ""}
+    <div class="card-foot">
+      <span class="verify ${/confirmed|live/i.test(job.verified||"") ? "live" : ""}">${escapeHtml(job.verified || "")}</span>
+    </div>
+    <div class="card-foot" style="margin-top:6px;">
+      <a class="apply-link" href="${escapeAttr(job.link)}" target="_blank" rel="noopener">view posting →</a>
+      <button class="remove-btn" data-remove="${job.id}">remove</button>
+    </div>
+  `;
+
+  card.querySelector("[data-remove]").addEventListener("click", () => removeJob(job.id));
+  return card;
+}
+
+function escapeHtml(str){
+  const div = document.createElement("div");
+  div.textContent = str == null ? "" : str;
+  return div.innerHTML;
+}
+function escapeAttr(str){
+  return (str || "#").replace(/"/g, "&quot;");
+}
+
+async function moveJob(id, newStage){
+  if(customJobs.find(j => j.id === id)){
+    const job = customJobs.find(j => j.id === id);
+    job.stage = newStage;
+  } else {
+    stageOverrides[id] = newStage;
+  }
+  render();
+  await saveAll();
+}
+
+async function removeJob(id){
+  if(customJobs.find(j => j.id === id)){
+    customJobs = customJobs.filter(j => j.id !== id);
+  } else {
+    removedSeeds[id] = true;
+  }
+  render();
+  await saveAll();
+}
+
+async function saveAll(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({stageOverrides, removedSeeds}));
+    localStorage.setItem(CUSTOM_KEY, JSON.stringify(customJobs));
+    flashStatus("saved");
+  }catch(e){
+    flashStatus("couldn't save — changes are local to this browser only");
+  }
+}
+
+async function loadAll(){
+  try{
+    const raw1 = localStorage.getItem(STORAGE_KEY);
+    if(raw1){
+      const parsed = JSON.parse(raw1);
+      stageOverrides = parsed.stageOverrides || {};
+      removedSeeds = parsed.removedSeeds || {};
+    }
+  }catch(e){ /* nothing saved yet */ }
+  try{
+    const raw2 = localStorage.getItem(CUSTOM_KEY);
+    if(raw2){
+      customJobs = JSON.parse(raw2) || [];
+    }
+  }catch(e){ /* nothing saved yet */ }
+  render();
+}
+
+function flashStatus(msg){
+  const el = document.getElementById("statusMsg");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 1200);
+}
+
+// Add-role modal
+const overlay = document.getElementById("overlay");
+document.getElementById("openAdd").addEventListener("click", () => overlay.classList.add("open"));
+document.getElementById("cancelAdd").addEventListener("click", () => overlay.classList.remove("open"));
+overlay.addEventListener("click", e => { if(e.target === overlay) overlay.classList.remove("open"); });
+
+document.getElementById("saveAdd").addEventListener("click", async () => {
+  const company = document.getElementById("f-company").value.trim();
+  const role = document.getElementById("f-role").value.trim();
+  if(!company || !role) return;
+  const job = {
+    id: "custom-" + Date.now(),
+    company,
+    role,
+    location: document.getElementById("f-location").value.trim(),
+    comp: document.getElementById("f-comp").value.trim(),
+    link: document.getElementById("f-link").value.trim() || "#",
+    note: document.getElementById("f-note").value.trim(),
+    lenny: null,
+    verified: "Added manually — not yet re-verified",
+    stage: document.getElementById("f-stage").value
+  };
+  customJobs.push(job);
+  ["f-company","f-role","f-location","f-comp","f-link","f-note"].forEach(id => document.getElementById(id).value = "");
+  overlay.classList.remove("open");
+  render();
+  await saveAll();
+});
+
+loadAll();
+</script>
+</body>
+</html>
