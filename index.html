@@ -50,6 +50,42 @@
   }
   .meta-row b{color:var(--text);}
 
+  .game-bar{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    padding:10px 32px;
+    background:var(--card);
+    border-bottom:1px solid var(--line);
+    font-size:12.5px;
+  }
+  .level-badge{font-weight:600;white-space:nowrap;}
+  .xp-track{
+    flex:1;min-width:120px;max-width:240px;height:8px;
+    background:var(--line);border-radius:5px;overflow:hidden;
+  }
+  .xp-fill{height:100%;background:linear-gradient(90deg,#2383e2,#6940a5);transition:width .4s ease;}
+  .xp-label{color:var(--text-soft);white-space:nowrap;}
+  .streak{color:var(--text-soft);white-space:nowrap;}
+  .badge-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .badge{
+    width:24px;height:24px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;background:var(--line);
+    filter:grayscale(1);opacity:.35;
+  }
+  .badge.unlocked{filter:none;opacity:1;background:#fff7e0;box-shadow:0 0 0 1.5px #e8c65a inset;}
+
+  .celebrate-toast{
+    position:fixed;top:20px;left:50%;
+    transform:translateX(-50%) translateY(-14px);
+    background:#1f1f1d;color:#fff;padding:9px 16px;border-radius:8px;
+    font-size:13px;opacity:0;transition:all .3s ease;z-index:100;pointer-events:none;
+  }
+  .celebrate-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:200;}
+
   .toolbar{
     display:flex;
     justify-content:space-between;
@@ -244,6 +280,16 @@
   </div>
 </div>
 
+<div class="game-bar" id="gameBar">
+  <span class="level-badge" id="levelBadge">🌱 Level 1</span>
+  <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+  <span class="xp-label" id="xpLabel">0 XP</span>
+  <span class="streak" id="streakEl">🔥 0-day streak</span>
+  <div class="badge-row" id="badgeRow"></div>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
 <div class="toolbar">
   <span class="count" id="totalCount">0 roles tracked</span>
   <button class="add-btn" id="openAdd">+ Add role</button>
@@ -367,10 +413,36 @@ const SEED_JOBS = [
 
 const STORAGE_KEY = "job-pipeline-state-v1";
 const CUSTOM_KEY = "job-pipeline-custom-v1";
+const XP_KEY = "job-pipeline-xp-v1";
+const STREAK_KEY = "job-pipeline-streak-v1";
+const BADGES_KEY = "job-pipeline-badges-v1";
+
+const STAGE_POINTS = {interested:1, researching:3, applied:8, interviewing:20, offer:60, passed:2};
+
+const LEVELS = [
+  {min:0,   name:"Just Getting Started",  emoji:"🌱"},
+  {min:10,  name:"Active Researcher",     emoji:"🔍"},
+  {min:30,  name:"Application Machine",   emoji:"📨"},
+  {min:60,  name:"Interview Ninja",       emoji:"🎤"},
+  {min:100, name:"Offer Magnet",          emoji:"🤝"},
+  {min:150, name:"Job Search Legend",     emoji:"🏆"}
+];
+
+const BADGES = [
+  {id:"first-application", emoji:"📨", label:"First Application", check: s => s.jobs.some(j => ["applied","interviewing","offer"].includes(j.stage))},
+  {id:"interview-season",  emoji:"🎤", label:"First Interview",   check: s => s.jobs.some(j => ["interviewing","offer"].includes(j.stage))},
+  {id:"offer-in-hand",     emoji:"🤝", label:"First Offer",       check: s => s.jobs.some(j => j.stage === "offer")},
+  {id:"five-tracked",      emoji:"📋", label:"5 Roles Tracked",   check: s => s.jobs.length >= 5},
+  {id:"on-a-roll",         emoji:"🔥", label:"3-Day Streak",      check: s => s.streak >= 3},
+  {id:"marathoner",        emoji:"🏅", label:"7-Day Streak",      check: s => s.streak >= 7}
+];
 
 let stageOverrides = {};   // seed job id -> stage
 let removedSeeds = {};     // seed job id -> true if removed
 let customJobs = [];       // user-added jobs
+let bestPoints = {};       // job id -> highest stage points ever earned (XP never drops)
+let streakData = {count:0, last:null};
+let unlockedBadges = {};
 
 function allJobs(){
   const seeded = SEED_JOBS
@@ -395,11 +467,130 @@ function tagClassForLocation(loc){
   return "tag-blue";
 }
 
+function pointsFor(stage){ return STAGE_POINTS[stage] ?? 0; }
+
+function registerProgress(id, stage){
+  const pts = pointsFor(stage);
+  if(!bestPoints[id] || pts > bestPoints[id]) bestPoints[id] = pts;
+}
+
+function totalXP(){
+  return Object.values(bestPoints).reduce((a,b) => a+b, 0);
+}
+
+function levelFor(xp){
+  let current = LEVELS[0];
+  for(const lvl of LEVELS){ if(xp >= lvl.min) current = lvl; }
+  return current;
+}
+
+function nextLevelThreshold(xp){
+  const next = LEVELS.find(l => l.min > xp);
+  return next ? next.min : null;
+}
+
+function updateStreak(){
+  const today = new Date().toISOString().slice(0,10);
+  if(streakData.last !== today){
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+    streakData.count = (streakData.last === yesterday) ? streakData.count + 1 : 1;
+    streakData.last = today;
+  }
+}
+
+function celebrateToast(msg){
+  const el = document.createElement("div");
+  el.className = "celebrate-toast";
+  el.textContent = msg;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 400); }, 2600);
+}
+
+function launchConfetti(){
+  const canvas = document.getElementById("confetti-canvas");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext("2d");
+  const colors = ["#2383e2","#6940a5","#256b3a","#93720b","#b0261e"];
+  const pieces = Array.from({length:120}, () => ({
+    x: Math.random()*canvas.width,
+    y: -20 - Math.random()*canvas.height*0.3,
+    r: 4 + Math.random()*4,
+    c: colors[Math.floor(Math.random()*colors.length)],
+    vy: 2 + Math.random()*3,
+    vx: -2 + Math.random()*4,
+    rot: Math.random()*360,
+    vr: -6 + Math.random()*12
+  }));
+  let frame = 0;
+  (function tick(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI/180);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*1.6);
+      ctx.restore();
+    });
+    frame++;
+    if(frame < 130) requestAnimationFrame(tick);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
+
+function saveGameState(){
+  try{
+    localStorage.setItem(XP_KEY, JSON.stringify(bestPoints));
+    localStorage.setItem(STREAK_KEY, JSON.stringify(streakData));
+    localStorage.setItem(BADGES_KEY, JSON.stringify(unlockedBadges));
+  }catch(e){ /* local only */ }
+}
+
+function loadGameState(){
+  try{ bestPoints = JSON.parse(localStorage.getItem(XP_KEY)) || {}; }catch(e){ bestPoints = {}; }
+  try{ streakData = JSON.parse(localStorage.getItem(STREAK_KEY)) || {count:0,last:null}; }catch(e){ streakData = {count:0,last:null}; }
+  try{ unlockedBadges = JSON.parse(localStorage.getItem(BADGES_KEY)) || {}; }catch(e){ unlockedBadges = {}; }
+  updateStreak();
+}
+
+function renderGameBar(jobs){
+  jobs.forEach(j => registerProgress(j.id, j.stage));
+  const xp = totalXP();
+  const level = levelFor(xp);
+  const next = nextLevelThreshold(xp);
+  document.getElementById("levelBadge").textContent = `${level.emoji} ${level.name}`;
+  const pct = next ? Math.round(((xp - level.min) / (next - level.min)) * 100) : 100;
+  document.getElementById("xpFill").style.width = pct + "%";
+  document.getElementById("xpLabel").textContent = next ? `${xp} / ${next} XP` : `${xp} XP — max level`;
+  document.getElementById("streakEl").textContent = `🔥 ${streakData.count}-day streak`;
+
+  const state = {jobs, xp, streak: streakData.count};
+  const row = document.getElementById("badgeRow");
+  row.innerHTML = "";
+  BADGES.forEach(b => {
+    if(b.check(state) && !unlockedBadges[b.id]){
+      unlockedBadges[b.id] = true;
+      celebrateToast(`${b.emoji} Badge unlocked: ${b.label}`);
+    }
+    const span = document.createElement("span");
+    span.className = "badge" + (unlockedBadges[b.id] ? " unlocked" : "");
+    span.title = b.label;
+    span.textContent = b.emoji;
+    row.appendChild(span);
+  });
+
+  saveGameState();
+}
+
 function render(){
   const board = document.getElementById("board");
   board.innerHTML = "";
   const jobs = allJobs();
   document.getElementById("totalCount").textContent = `${jobs.length} role${jobs.length===1?"":"s"} tracked`;
+  renderGameBar(jobs);
 
   STAGES.forEach(stage => {
     const col = document.createElement("div");
@@ -490,11 +681,16 @@ function escapeAttr(str){
 }
 
 async function moveJob(id, newStage){
+  const prevStage = allJobs().find(j => j.id === id)?.stage;
   if(customJobs.find(j => j.id === id)){
     const job = customJobs.find(j => j.id === id);
     job.stage = newStage;
   } else {
     stageOverrides[id] = newStage;
+  }
+  if(newStage === "offer" && prevStage !== "offer"){
+    launchConfetti();
+    celebrateToast("🎉 Offer! You did it.");
   }
   render();
   await saveAll();
@@ -535,6 +731,7 @@ async function loadAll(){
       customJobs = JSON.parse(raw2) || [];
     }
   }catch(e){ /* nothing saved yet */ }
+  loadGameState();
   render();
 }
 
