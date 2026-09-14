@@ -268,6 +268,40 @@
     .board{padding:8px 12px 24px;}
     .topbar,.toolbar{padding-left:16px;padding-right:16px;}
   }
+
+  .events-section{
+    padding:20px 32px 32px;
+    border-top:1px solid var(--line);
+    margin-top:8px;
+  }
+  .events-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:4px;
+  }
+  .events-head h2{font-size:16px;margin:0;}
+  .events-sub{font-size:12.5px;color:var(--text-soft);margin:0 0 14px;}
+  .events-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+    gap:12px;
+  }
+  .event-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:12px 12px 10px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .event-name{font-size:13.5px;font-weight:600;margin:0 0 4px;}
+  .event-when{font-size:12px;color:var(--text-soft);margin:0 0 8px;}
+  .event-loc{font-size:12px;color:var(--text);margin:0 0 8px;}
+  .event-note{
+    font-size:11.5px;color:var(--text-soft);line-height:1.4;
+    margin:0 0 8px;padding-top:6px;border-top:1px solid var(--line);
+  }
+  .event-foot{display:flex;justify-content:space-between;align-items:center;}
 </style>
 </head>
 <body>
@@ -296,6 +330,12 @@
 </div>
 
 <div class="board" id="board"></div>
+
+<div class="events-section">
+  <div class="events-head"><h2>🗽 NYC Design Meetups</h2></div>
+  <p class="events-sub">Public networking events, verified live by directly checking each listing — refreshed by request.</p>
+  <div class="events-grid" id="eventsGrid"></div>
+</div>
 
 <div class="overlay" id="overlay">
   <div class="modal">
@@ -420,6 +460,34 @@ const SEED_JOBS = [
     lenny:null,
     verified:"Confirmed live on Affirm's Greenhouse board (fetched directly on Sept 14, 2026)",
     stage:"interested"
+  }
+];
+
+// Networking events — verified by directly loading each listing on Sept 14, 2026.
+// Sourced from AIGA NY and NYC design meetup groups (Instagram/Partiful aren't
+// publicly searchable or fetchable, so they're not usable sources here).
+const EVENTS = [
+  {
+    id:"aiga-group-hang-creators",
+    name:"Group Hang: Creators Directory",
+    date:"2026-09-29",
+    time:"6:00–8:00 pm",
+    location:"Two Trees Rooftop, 45 Main St (10th Fl), Brooklyn",
+    source:"AIGA NY",
+    link:"https://aigany.org/event/group-hangcreators-directory/",
+    note:"\"No panels, no pitches\" — a casual mixer co-hosted with Creators Directory for designers, art directors, and creatives to meet in person.",
+    verified:"Confirmed live on aigany.org (fetched directly)"
+  },
+  {
+    id:"designlounge-drinks-designers",
+    name:"NYC Drinks + Designers (UX, UI, Product) Happy Hour",
+    date:"2026-09-29",
+    time:"6:30–8:30 pm",
+    location:"Bar Hugo at Hotel Hugo, 525 Greenwich St, Manhattan",
+    source:"Design Lounge (Meetup)",
+    link:"https://www.meetup.com/designlounge/events/316434909/",
+    note:"Recurring casual happy hour for UX/UI/product designers — icebreaker activities, RSVP required.",
+    verified:"Confirmed live on meetup.com (fetched directly)"
   }
 ];
 
@@ -597,7 +665,42 @@ function renderGameBar(jobs){
   saveGameState();
 }
 
+function formatEventDate(iso){
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"});
+}
+
+function renderEvents(){
+  const grid = document.getElementById("eventsGrid");
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = EVENTS
+    .filter(e => new Date(e.date + "T00:00:00") >= today)
+    .sort((a,b) => a.date.localeCompare(b.date));
+
+  grid.innerHTML = "";
+  if(upcoming.length === 0){
+    grid.innerHTML = `<div class="empty-hint">no upcoming events tracked right now</div>`;
+    return;
+  }
+  upcoming.forEach(ev => {
+    const card = document.createElement("div");
+    card.className = "event-card";
+    card.innerHTML = `
+      <p class="event-name">${escapeHtml(ev.name)}</p>
+      <p class="event-when">${formatEventDate(ev.date)} · ${escapeHtml(ev.time || "")}</p>
+      <p class="event-loc">${escapeHtml(ev.location || "")}</p>
+      ${ev.note ? `<p class="event-note">${escapeHtml(ev.note)}</p>` : ""}
+      <div class="event-foot">
+        <span class="verify live">${escapeHtml(ev.source || "")}</span>
+        <a class="apply-link" href="${escapeAttr(ev.link)}" target="_blank" rel="noopener">details →</a>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
 function render(){
+  renderEvents();
   const board = document.getElementById("board");
   board.innerHTML = "";
   const jobs = allJobs();
