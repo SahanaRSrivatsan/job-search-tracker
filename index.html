@@ -3,15 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <title>Senior Product Design — Job Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f7f7f5;
-    --card:#ffffff;
-    --text:#37352f;
-    --text-soft:#787774;
-    --line:#e9e9e7;
-    --line-strong:#dcdcda;
-    --accent:#2383e2;
+    --bg:#f8f5ec;
+    --card:#fffdf7;
+    --text:#1c1b17;
+    --text-soft:#6e6a5c;
+    --line:#e5ded0;
+    --line-strong:#cfc6ae;
+    --accent:#9c2b23;
     --tag-blue-bg:#e7f3fe; --tag-blue-fg:#0b6bcb;
     --tag-green-bg:#e9f3ec; --tag-green-fg:#256b3a;
     --tag-yellow-bg:#fbf3db; --tag-yellow-fg:#93720b;
@@ -23,28 +26,63 @@
   body{
     background:var(--bg);
     color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-family:"PT Serif",Georgia,"Times New Roman",serif;
     padding:0 0 60px;
   }
+  h1, h2, .level-badge, .card-company, .event-name, .modal h2, .col-title, .daily-head h2, .task-text{
+    font-family:"Libre Baskerville",Georgia,serif;
+  }
+  .add-btn, .tag, .badge, .verify, .apply-link, .remove-btn, .count, .col-count,
+  .xp-label, .streak, .status-msg, .field input, .field select, .field textarea,
+  .btn-primary, .btn-secondary, .event-when, .event-loc, .event-foot, .events-sub,
+  .task-meta, .daily-sub, .news-source, .news-dek{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
+  .section-kicker{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1.4px;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 4px;
+  }
   .topbar{
-    padding:28px 32px 18px;
-    border-bottom:1px solid var(--line);
+    padding:26px 32px 16px;
+    border-bottom:3px double var(--text);
     background:var(--card);
   }
   .eyebrow{
-    font-size:12.5px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:11px;
+    letter-spacing:1.4px;
+    text-transform:uppercase;
     color:var(--text-soft);
-    margin:0 0 6px;
+    margin:0 0 8px;
   }
   h1{
-    font-size:26px;
-    margin:0 0 10px;
-    font-weight:600;
+    font-size:32px;
+    margin:0 0 12px;
+    font-weight:700;
+    letter-spacing:.2px;
+  }
+  .dateline{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:12px;
+    color:var(--text-soft);
+    border-top:1px solid var(--line-strong);
+    padding-top:8px;
+    margin-top:4px;
   }
   .meta-row{
     display:flex;
     flex-wrap:wrap;
     gap:18px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
     font-size:13px;
     color:var(--text-soft);
   }
@@ -65,7 +103,7 @@
     flex:1;min-width:120px;max-width:240px;height:8px;
     background:var(--line);border-radius:5px;overflow:hidden;
   }
-  .xp-fill{height:100%;background:linear-gradient(90deg,#2383e2,#6940a5);transition:width .4s ease;}
+  .xp-fill{height:100%;background:linear-gradient(90deg,var(--accent),#c9762c);transition:width .4s ease;}
   .xp-label{color:var(--text-soft);white-space:nowrap;}
   .streak{color:var(--text-soft);white-space:nowrap;}
   .badge-row{display:flex;gap:6px;flex-wrap:wrap;}
@@ -302,15 +340,88 @@
     margin:0 0 8px;padding-top:6px;border-top:1px solid var(--line);
   }
   .event-foot{display:flex;justify-content:space-between;align-items:center;}
+
+  .section{
+    padding:24px 32px 8px;
+    border-top:1px solid var(--line-strong);
+  }
+  .section h2{font-size:20px;margin:0 0 4px;}
+  .section-sub{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:12.5px;color:var(--text-soft);margin:0 0 16px;
+  }
+
+  /* Today's briefing */
+  .daily-list{display:flex;flex-direction:column;gap:2px;margin-bottom:8px;}
+  .daily-item{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 4px;border-bottom:1px solid var(--line);
+    font-size:15px;cursor:pointer;
+  }
+  .daily-item input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;}
+  .daily-item.done .daily-label{text-decoration:line-through;color:var(--text-soft);}
+  .daily-xp{
+    margin-left:auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:11px;color:var(--text-soft);
+  }
+  .daily-progress{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:12px;color:var(--text-soft);margin:6px 0 16px;
+  }
+
+  /* News */
+  .news-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 28px;
+    margin-bottom:8px;
+  }
+  .news-col-head{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--text);border-bottom:2px solid var(--text);
+    padding-bottom:6px;margin-bottom:2px;
+  }
+  .news-item{padding:12px 0;border-bottom:1px solid var(--line);}
+  .news-item:last-child{border-bottom:none;}
+  .news-headline{font-size:15.5px;font-weight:700;margin:0 0 4px;line-height:1.3;}
+  .news-headline a{color:var(--text);text-decoration:none;}
+  .news-headline a:hover{text-decoration:underline;}
+  .news-dek{font-size:12.5px;color:var(--text-soft);line-height:1.45;margin:0 0 4px;}
+  .news-source{font-size:10.5px;color:var(--text-soft);letter-spacing:.3px;}
+  @media(max-width:700px){ .news-grid{grid-template-columns:1fr;} }
+
+  /* Tasks */
+  .task-list{display:flex;flex-direction:column;gap:2px;}
+  .task-item{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:9px 4px;border-bottom:1px solid var(--line);
+  }
+  .task-item input{width:16px;height:16px;margin-top:3px;accent-color:var(--accent);cursor:pointer;}
+  .task-text{font-size:15px;flex:1;}
+  .task-item.done .task-text{text-decoration:line-through;color:var(--text-soft);}
+  .task-meta{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:10.5px;color:var(--text-soft);margin-top:2px;
+  }
+  .task-remove{background:none;border:none;color:var(--text-soft);cursor:pointer;font-size:12px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .task-remove:hover{color:var(--tag-red-fg);}
+  .task-add-row{display:flex;gap:8px;margin-top:12px;}
+  .task-add-row input{
+    flex:1;padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;
+    font-size:13.5px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <p class="eyebrow">senior product design — job pipeline</p>
-  <h1>Application Tracker</h1>
-  <div class="meta-row">
-    <span><b>How this stays current:</b> I refresh this by request and verify each posting against the company's own careers page. For true daily automation, set up a Claude Cowork scheduled task pointed at this list.</span>
+  <p class="eyebrow">the daily dispatch</p>
+  <h1>The Pipeline &amp; Practice</h1>
+  <div class="dateline">
+    <span id="datelineToday">—</span>
+    <span>The job search, the news, and the work of the day.</span>
   </div>
 </div>
 
@@ -324,16 +435,55 @@
 
 <canvas id="confetti-canvas"></canvas>
 
-<div class="toolbar">
-  <span class="count" id="totalCount">0 roles tracked</span>
-  <button class="add-btn" id="openAdd">+ Add role</button>
+<div class="section" id="dailySection">
+  <p class="section-kicker">Today's Briefing</p>
+  <h2>What today asks of you</h2>
+  <p class="section-sub" id="dailyProgress">0 of 0 done today</p>
+  <div class="daily-list" id="dailyList"></div>
+</div>
+
+<div class="section" id="newsSection">
+  <p class="section-kicker">The News</p>
+  <h2>Worth Knowing Today</h2>
+  <p class="section-sub">Two short columns — refreshed by request, sourced with real links.</p>
+  <div class="news-grid">
+    <div>
+      <div class="news-col-head">Top Stories</div>
+      <div id="newsGeneral"></div>
+    </div>
+    <div>
+      <div class="news-col-head">Design &amp; Tech</div>
+      <div id="newsIndustry"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-kicker">The Search</p>
+  <h2>Application Tracker</h2>
+  <div class="toolbar" style="padding-left:0;padding-right:0;">
+    <span class="count" id="totalCount">0 roles tracked</span>
+    <button class="add-btn" id="openAdd">+ Add role</button>
+  </div>
 </div>
 
 <div class="board" id="board"></div>
 
-<div class="events-section">
-  <div class="events-head"><h2>🗽 NYC Design Meetups</h2></div>
-  <p class="events-sub">Public networking events, verified live by directly checking each listing — refreshed by request.</p>
+<div class="section" id="tasksSection">
+  <p class="section-kicker">The List</p>
+  <h2>Tasks</h2>
+  <p class="section-sub">Tell me a task in conversation and I'll add it here.</p>
+  <div class="task-list" id="taskList"></div>
+  <div class="task-add-row">
+    <input type="text" id="taskInput" placeholder="Add a task…">
+    <button class="add-btn" id="taskAddBtn">Add</button>
+  </div>
+</div>
+
+<div class="section events-section">
+  <p class="section-kicker">The Scene</p>
+  <h2>🗽 NYC Design Meetups</h2>
+  <p class="section-sub">Public networking events, verified live by directly checking each listing — refreshed by request.</p>
   <div class="events-grid" id="eventsGrid"></div>
 </div>
 
@@ -491,11 +641,62 @@ const EVENTS = [
   }
 ];
 
+// Daily recurring checklist — resets each day, XP earned per task is never lost.
+const DAILY_TASKS = [
+  {id:"apply",   label:"Apply to at least one job",  xp:5},
+  {id:"news",    label:"Read today's briefing",       xp:2},
+  {id:"workout", label:"Work out",                    xp:5},
+  {id:"meal",    label:"Cook a meal",                 xp:3}
+];
+
+// News — refreshed by request, each headline backed by a real, checkable link.
+const NEWS_GENERAL = [
+  {
+    headline:"Anthropic's Dario Amodei calls for an industry-wide AI slowdown",
+    dek:"In an essay titled “We Must Pace the Frontier,” Amodei warned swarms of rogue AI agents could destabilize the internet within months — Altman, Hassabis, and Musk quickly cosigned.",
+    source:"Axios",
+    link:"https://www.axios.com/2026/09/12/anthropic-ai-amodei-pacing"
+  },
+  {
+    headline:"Supreme Court blocks order restricting mail-in voting",
+    dek:"The ruling halts a White House push to limit mail ballots ahead of the midterms.",
+    source:"Democracy Now!",
+    link:"https://www.democracynow.org/2026/9/15/headlines"
+  },
+  {
+    headline:"Tuesday's national headlines roundup",
+    dek:"Red Sea tensions as Houthis consolidate control, a U.S.–Iran drone incident over the Strait of Hormuz, and the EPA's move to revoke its greenhouse-gas rule.",
+    source:"Kansas Public Radio",
+    link:"https://kansaspublicradio.org/daily-headlines/2026-09-15/headlines-for-tuesday-september-15-2026"
+  }
+];
+const NEWS_INDUSTRY = [
+  {
+    headline:"91% of designers now use AI weekly, up from 54% a year ago",
+    dek:"The average designer's toolstack has more than doubled, from 3 tools to 7, per this year's field-wide survey.",
+    source:"State of AI Design Report 2026",
+    link:"https://stateofaidesign.com/chapters/tools"
+  },
+  {
+    headline:"A field guide to production-ready AI tools for engineering design",
+    dek:"CAD-aware knowledge tools, generative design, real-time simulation, and PLM intelligence are now standard parts of the stack.",
+    source:"Design News",
+    link:"https://www.designnews.com/artificial-intelligence/ai-tools-for-engineers"
+  }
+];
+
+// Tasks you tell Claude about — added here directly, same pattern as job postings.
+const SEED_TASKS = [];
+
 const STORAGE_KEY = "job-pipeline-state-v1";
 const CUSTOM_KEY = "job-pipeline-custom-v1";
 const XP_KEY = "job-pipeline-xp-v1";
 const STREAK_KEY = "job-pipeline-streak-v1";
 const BADGES_KEY = "job-pipeline-badges-v1";
+const DAILY_KEY = "job-pipeline-daily-v1";
+const DAILY_XP_KEY = "job-pipeline-daily-xp-v1";
+const TASK_DONE_KEY = "job-pipeline-task-done-v1";
+const TASK_CUSTOM_KEY = "job-pipeline-task-custom-v1";
 
 const STAGE_POINTS = {interested:1, researching:3, applied:8, interviewing:20, offer:60, passed:2};
 
@@ -514,7 +715,8 @@ const BADGES = [
   {id:"offer-in-hand",     emoji:"🤝", label:"First Offer",       check: s => s.jobs.some(j => j.stage === "offer")},
   {id:"five-tracked",      emoji:"📋", label:"5 Roles Tracked",   check: s => s.jobs.length >= 5},
   {id:"on-a-roll",         emoji:"🔥", label:"3-Day Streak",      check: s => s.streak >= 3},
-  {id:"marathoner",        emoji:"🏅", label:"7-Day Streak",      check: s => s.streak >= 7}
+  {id:"marathoner",        emoji:"🏅", label:"7-Day Streak",      check: s => s.streak >= 7},
+  {id:"perfect-day",       emoji:"☀️", label:"Perfect Day",       check: s => DAILY_TASKS.every(t => dailyState.done[t.id])}
 ];
 
 let stageOverrides = {};   // seed job id -> stage
@@ -523,6 +725,10 @@ let customJobs = [];       // user-added jobs
 let bestPoints = {};       // job id -> highest stage points ever earned (XP never drops)
 let streakData = {count:0, last:null};
 let unlockedBadges = {};
+let dailyState = {date:null, done:{}};   // today's checklist state
+let dailyXPLog = {};                     // "date:taskId" -> xp (persists forever)
+let taskDoneOverrides = {};              // seed task id -> done boolean
+let customTasks = [];                    // tasks added via the UI or by Claude
 
 function allJobs(){
   const seeded = SEED_JOBS
@@ -555,7 +761,9 @@ function registerProgress(id, stage){
 }
 
 function totalXP(){
-  return Object.values(bestPoints).reduce((a,b) => a+b, 0);
+  const jobXP = Object.values(bestPoints).reduce((a,b) => a+b, 0);
+  const dailyXP = Object.values(dailyXPLog).reduce((a,b) => a+b, 0);
+  return jobXP + dailyXP;
 }
 
 function levelFor(xp){
@@ -665,6 +873,144 @@ function renderGameBar(jobs){
   saveGameState();
 }
 
+function todayISO(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function loadDailyState(){
+  try{ dailyXPLog = JSON.parse(localStorage.getItem(DAILY_XP_KEY)) || {}; }catch(e){ dailyXPLog = {}; }
+  try{ dailyState = JSON.parse(localStorage.getItem(DAILY_KEY)) || {date:null, done:{}}; }catch(e){ dailyState = {date:null, done:{}}; }
+  const today = todayISO();
+  if(dailyState.date !== today){
+    dailyState = {date: today, done:{}};
+  }
+}
+
+function saveDailyState(){
+  try{
+    localStorage.setItem(DAILY_KEY, JSON.stringify(dailyState));
+    localStorage.setItem(DAILY_XP_KEY, JSON.stringify(dailyXPLog));
+  }catch(e){ /* local only */ }
+}
+
+async function toggleDaily(id){
+  const task = DAILY_TASKS.find(t => t.id === id);
+  if(!task) return;
+  const wasDone = !!dailyState.done[id];
+  dailyState.done[id] = !wasDone;
+  if(!wasDone){
+    const key = `${dailyState.date}:${id}`;
+    if(!dailyXPLog[key]) dailyXPLog[key] = task.xp;
+  }
+  saveDailyState();
+  render();
+}
+
+function renderDaily(){
+  const list = document.getElementById("dailyList");
+  list.innerHTML = "";
+  DAILY_TASKS.forEach(t => {
+    const done = !!dailyState.done[t.id];
+    const row = document.createElement("div");
+    row.className = "daily-item" + (done ? " done" : "");
+    row.innerHTML = `
+      <input type="checkbox" ${done ? "checked" : ""}>
+      <span class="daily-label">${escapeHtml(t.label)}</span>
+      <span class="daily-xp">+${t.xp} XP</span>
+    `;
+    row.addEventListener("click", (e) => { e.preventDefault(); toggleDaily(t.id); });
+    list.appendChild(row);
+  });
+  const doneCount = DAILY_TASKS.filter(t => dailyState.done[t.id]).length;
+  document.getElementById("dailyProgress").textContent = `${doneCount} of ${DAILY_TASKS.length} done today`;
+}
+
+function renderNewsColumn(elId, items){
+  const el = document.getElementById(elId);
+  el.innerHTML = "";
+  items.forEach(n => {
+    const div = document.createElement("div");
+    div.className = "news-item";
+    div.innerHTML = `
+      <p class="news-headline"><a href="${escapeAttr(n.link)}" target="_blank" rel="noopener">${escapeHtml(n.headline)}</a></p>
+      <p class="news-dek">${escapeHtml(n.dek)}</p>
+      <p class="news-source">${escapeHtml(n.source)}</p>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function renderNews(){
+  renderNewsColumn("newsGeneral", NEWS_GENERAL);
+  renderNewsColumn("newsIndustry", NEWS_INDUSTRY);
+}
+
+function allTasks(){
+  const seeded = SEED_TASKS.map(t => ({...t, done: taskDoneOverrides[t.id] ?? t.done ?? false}));
+  return [...seeded, ...customTasks];
+}
+
+async function toggleTask(id){
+  const custom = customTasks.find(t => t.id === id);
+  if(custom){
+    custom.done = !custom.done;
+  } else {
+    taskDoneOverrides[id] = !(allTasks().find(t => t.id === id)?.done);
+  }
+  saveTasks();
+  render();
+}
+
+async function removeTask(id){
+  customTasks = customTasks.filter(t => t.id !== id);
+  saveTasks();
+  render();
+}
+
+async function addTask(){
+  const input = document.getElementById("taskInput");
+  const text = input.value.trim();
+  if(!text) return;
+  customTasks.push({id:"task-" + Date.now(), text, done:false});
+  input.value = "";
+  saveTasks();
+  render();
+}
+
+function saveTasks(){
+  try{
+    localStorage.setItem(TASK_DONE_KEY, JSON.stringify(taskDoneOverrides));
+    localStorage.setItem(TASK_CUSTOM_KEY, JSON.stringify(customTasks));
+  }catch(e){ /* local only */ }
+}
+
+function loadTasks(){
+  try{ taskDoneOverrides = JSON.parse(localStorage.getItem(TASK_DONE_KEY)) || {}; }catch(e){ taskDoneOverrides = {}; }
+  try{ customTasks = JSON.parse(localStorage.getItem(TASK_CUSTOM_KEY)) || []; }catch(e){ customTasks = []; }
+}
+
+function renderTasks(){
+  const list = document.getElementById("taskList");
+  const tasks = allTasks();
+  list.innerHTML = "";
+  if(tasks.length === 0){
+    list.innerHTML = `<div class="empty-hint">no tasks yet — add one below, or just tell Claude</div>`;
+    return;
+  }
+  tasks.forEach(t => {
+    const row = document.createElement("div");
+    row.className = "task-item" + (t.done ? " done" : "");
+    row.innerHTML = `
+      <input type="checkbox" ${t.done ? "checked" : ""}>
+      <span class="task-text">${escapeHtml(t.text)}</span>
+      <button class="task-remove">remove</button>
+    `;
+    row.querySelector("input").addEventListener("click", () => toggleTask(t.id));
+    row.querySelector(".task-remove").addEventListener("click", () => removeTask(t.id));
+    list.appendChild(row);
+  });
+}
+
 function formatEventDate(iso){
   const d = new Date(iso + "T00:00:00");
   return d.toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"});
@@ -700,6 +1046,9 @@ function renderEvents(){
 }
 
 function render(){
+  renderDaily();
+  renderNews();
+  renderTasks();
   renderEvents();
   const board = document.getElementById("board");
   board.innerHTML = "";
@@ -847,6 +1196,9 @@ async function loadAll(){
     }
   }catch(e){ /* nothing saved yet */ }
   loadGameState();
+  loadDailyState();
+  loadTasks();
+  document.getElementById("datelineToday").textContent = new Date().toLocaleDateString("en-US", {weekday:"long", year:"numeric", month:"long", day:"numeric"});
   render();
 }
 
@@ -885,6 +1237,9 @@ document.getElementById("saveAdd").addEventListener("click", async () => {
   render();
   await saveAll();
 });
+
+document.getElementById("taskAddBtn").addEventListener("click", addTask);
+document.getElementById("taskInput").addEventListener("keydown", e => { if(e.key === "Enter") addTask(); });
 
 loadAll();
 </script>
